@@ -104,24 +104,12 @@ failure.
 
 ## Use Cases
 
-The EUE option defined in this document benefits several use cases:
+The EUE option defined in this document primarily benefits automated
+systems such as provisioning tools and DNS management APIs.  These
+systems can receive actionable error information identifying which
+specific RR in an UPDATE caused the failure, enabling automatic
+correction or precise problem reporting.
 
-* Automated provisioning systems that create DNS RRs as part of
-  service deployment can receive actionable error information,
-  including which specific RR in a batch UPDATE caused the failure,
-  enabling automatic correction or precise problem reporting.
-
-* Dynamic DNS clients (such as those used for home networks or
-  dynamic IP addressing) can provide meaningful error messages
-  to users when updates fail.
-
-* DNS management APIs and tools can surface detailed error
-  information rather than generic failure messages, and can
-  programmatically identify the problematic record.
-
-* Debugging and troubleshooting DNS configuration issues becomes
-  more straightforward when both the exact cause of failure and
-  the specific failing RR are known.
 
 # Conventions and Definitions
 
