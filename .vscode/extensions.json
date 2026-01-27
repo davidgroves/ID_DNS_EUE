@@ -1,0 +1,7 @@
+{
+  "recommendations": [
+    "ms-vscode.live-server",
+    "yzhang.markdown-all-in-one",
+    "ms-azuretools.vscode-docker"
+  ]
+}

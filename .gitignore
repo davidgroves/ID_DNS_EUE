@@ -1,0 +1,32 @@
+# Build outputs
+draft-*.txt
+draft-*.html
+draft-*.xml
+draft-*.pdf
+*.cleanxml
+
+# i-d-template toolchain
+lib/
+.gems/
+.venv/
+.refcache/
+.targets.mk
+.internal-Makefile
+.tags
+Gemfile.lock
+node_modules/
+package-lock.json
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# GitHub issues cache
+issues.json

@@ -1,0 +1,25 @@
+{
+  // File associations
+  "files.associations": {
+    "*.md": "markdown"
+  },
+
+  // Exclude build artifacts from explorer
+  "files.exclude": {
+    "lib/": true,
+    ".gems/": true,
+    ".venv/": true,
+    ".refcache/": true,
+    ".internal-Makefile": true,
+    "draft-*.xml": true
+  },
+
+  // Live Preview settings (Microsoft extension)
+  "livePreview.portNumber": 5500,
+  "livePreview.openPreviewTarget": "Embedded Preview",
+  "livePreview.autoRefreshPreview": "On Changes to Saved Files",
+  "livePreview.notifyOnOpenLooseFile": false,
+
+  // Terminal settings
+  "terminal.integrated.defaultProfile.linux": "bash"
+}

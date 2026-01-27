@@ -1,0 +1,72 @@
+name: "Build and Publish"
+
+on:
+  push:
+    paths-ignore:
+      - README.md
+      - CONTRIBUTING.md
+      - LICENSE.md
+      - CLAUDE.md
+      - .gitignore
+  pull_request:
+    paths-ignore:
+      - README.md
+      - CONTRIBUTING.md
+      - LICENSE.md
+      - CLAUDE.md
+      - .gitignore
+
+jobs:
+  build:
+    name: "Build Drafts"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Setup cache key"
+        id: setup
+        run: date -u "+date=%FT%T" >> "$GITHUB_OUTPUT"
+
+      - name: "Cache dependencies"
+        uses: actions/cache@v4
+        with:
+          path: |
+            .refcache
+            .venv
+            .gems
+            node_modules
+            .targets.mk
+          key: i-d-${{ steps.setup.outputs.date }}
+          restore-keys: i-d-
+
+      - name: "Build Drafts"
+        id: build
+        uses: martinthomson/i-d-template@v1
+        with:
+          token: ${{ github.token }}
+
+      - name: "Fix Lints"
+        id: fix-lint
+        if: always() && steps.build.outcome == 'failure'
+        uses: martinthomson/i-d-template@v1
+        with:
+          make: fix-lint
+
+      - name: "Update GitHub Pages"
+        uses: martinthomson/i-d-template@v1
+        if: ${{ github.event_name == 'push' }}
+        with:
+          make: gh-pages
+          token: ${{ github.token }}
+
+      - name: "Archive Built Drafts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: drafts
+          path: |
+            draft-*.html
+            draft-*.txt

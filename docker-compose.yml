@@ -1,0 +1,46 @@
+services:
+  # One-time build service
+  build:
+    build: .
+    volumes:
+      - .:/workdir
+      - id-cache:/workdir/lib
+    working_dir: /workdir
+    # Default command is "all" from Dockerfile
+
+  # Watch service - rebuilds on file changes
+  watch:
+    build: .
+    volumes:
+      - .:/workdir
+      - id-cache:/workdir/lib
+    working_dir: /workdir
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        /entrypoint.sh all
+        echo ""
+        echo "=== Watching for changes (Ctrl+C to stop) ==="
+        echo ""
+        while inotifywait -q -e modify -e create -e delete --include '.*\.md$$' .; do
+          echo ""
+          echo "=== Rebuilding... ==="
+          /entrypoint.sh all
+          echo "=== Done. Watching... ==="
+        done
+
+  # Interactive shell for debugging
+  shell:
+    build: .
+    volumes:
+      - .:/workdir
+      - id-cache:/workdir/lib
+    working_dir: /workdir
+    stdin_open: true
+    tty: true
+    entrypoint: /bin/bash
+
+volumes:
+  id-cache:
+    name: ${COMPOSE_PROJECT_NAME:-id}-cache
