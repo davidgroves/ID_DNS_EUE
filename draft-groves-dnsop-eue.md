@@ -278,17 +278,10 @@ This section defines the initial set of INFO-CODE values for
 the EUE option.  Each code includes guidance on when it should
 be used and what EXTRA-TEXT content may be appropriate.
 
-Servers implementing the EUE option SHOULD include it in
-responses to UPDATE requests that include an OPT pseudo-RR,
-when a failure condition matching one of these codes occurs.
+Unless otherwise noted, these INFO-CODEs are typically returned
+with RCODE REFUSED.
 
 ## INFO-CODE 0: Other Error
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 0 |
-| Purpose | Unspecified error |
-| Reference | This document |
 
 The error does not match any of the other defined codes.
 Implementations SHOULD include an EXTRA-TEXT value to provide
@@ -298,12 +291,6 @@ This code is intended for errors that do not fit other categories
 and for future extensibility.
 
 ## INFO-CODE 1: CNAME RR Exists at Owner Name
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 1 |
-| Purpose | CNAME RR exists at update target owner name |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because a
 CNAME RR already exists at the owner name where the client
@@ -316,15 +303,7 @@ RRs as clarified by later specifications).
 The EXTRA-TEXT field MAY contain the text "CNAME exists" or similar
 descriptive text.
 
-This code is typically returned with RCODE REFUSED or YXRRSET.
-
 ## INFO-CODE 2: Other Data Exists at CNAME Owner Name
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 2 |
-| Purpose | Other RRs exist where CNAME is being added |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because the
 client attempted to add a CNAME RR at an owner name where other
@@ -333,30 +312,14 @@ RR types already exist.
 The EXTRA-TEXT field MAY indicate the RR type(s) that conflict
 with the CNAME addition.
 
-This code is typically returned with RCODE REFUSED or YXRRSET.
-
 ## INFO-CODE 3: DNAME RR Conflict
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 3 |
-| Purpose | DNAME RR conflict |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected due to a
 conflict involving a DNAME RR, as specified in {{RFC6672}}.
 This includes attempts to add a DNAME where prohibited RRs
 exist, or adding RRs that conflict with an existing DNAME.
 
-This code is typically returned with RCODE REFUSED.
-
 ## INFO-CODE 4: Missing Glue
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 4 |
-| Purpose | Required glue records are missing |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because it
 would create an NS RR pointing to an in-zone name for which no
@@ -370,15 +333,7 @@ failures.
 The EXTRA-TEXT field MAY contain the domain name of the target
 that lacks glue records.
 
-This code is typically returned with RCODE REFUSED.
-
 ## INFO-CODE 5: Zone Apex Constraint
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 5 |
-| Purpose | Update violates zone apex constraints |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because it
 would violate constraints on the zone apex.  Examples include:
@@ -393,15 +348,7 @@ the zone apex cannot be deleted.
 The EXTRA-TEXT field MAY describe the specific constraint
 violated, such as "cannot delete SOA" or "cannot delete last NS".
 
-This code is typically returned with RCODE REFUSED.
-
 ## INFO-CODE 6: Singleton Type Conflict
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 6 |
-| Purpose | Multiple RRs of singleton type |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because it
 would result in multiple RRs of a type that permits only a
@@ -409,15 +356,7 @@ single RR per owner name.  Per {{RFC2136}} Section 1.1.5, SOA and
 CNAME are singleton types that cannot have multiple RRs at the
 same owner name.
 
-This code is typically returned with RCODE REFUSED.
-
 ## INFO-CODE 7: RRset TTL Mismatch
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 7 |
-| Purpose | TTL mismatch within RRset |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because it
 would add an RR to an existing RRset with a different TTL value.
@@ -429,15 +368,7 @@ The EXTRA-TEXT field MAY indicate the expected TTL value.
 Servers MAY choose to automatically adjust TTL values rather than
 reject the UPDATE, in which case this code would not be used.
 
-This code is typically returned with RCODE REFUSED.
-
 ## INFO-CODE 8: Delegation Hierarchy Violation
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 8 |
-| Purpose | Update violates delegation hierarchy |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because it
 would violate the delegation hierarchy.  Examples include:
@@ -446,15 +377,7 @@ would violate the delegation hierarchy.  Examples include:
 * Creating a delegation that conflicts with existing data
 * Modifying RRs in a way that breaks the delegation relationship
 
-This code is typically returned with RCODE REFUSED.
-
 ## INFO-CODE 9: Update Policy Violation
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 9 |
-| Purpose | Update denied by server policy |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected due to
 server-configured update policies, distinct from authentication
@@ -473,15 +396,7 @@ The EXTRA-TEXT field MAY provide additional context about the
 policy restriction, such as "apex NS modification requires
 update-policy".
 
-This code is typically returned with RCODE REFUSED.
-
 ## INFO-CODE 10: RRset Size Limit Exceeded
-
-| Field | Value |
-|-------|-------|
-| INFO-CODE | 10 |
-| Purpose | RRset size limit exceeded |
-| Reference | This document |
 
 This INFO-CODE indicates that the UPDATE was rejected because
 accepting it would cause an RRset to exceed the server's
@@ -495,8 +410,6 @@ For example, BIND 9.18.28 and later versions limit RRsets to
 
 The EXTRA-TEXT field MAY indicate the configured limit, such
 as "max 100 records per type".
-
-This code is typically returned with RCODE REFUSED.
 
 # Implementation Considerations
 
@@ -521,6 +434,14 @@ Servers implementing the EUE option SHOULD:
    {{RFC2136}}; the EUE option provides supplementary
    information and does not replace RCODEs.
 
+6. When returning EUE options, include the Prerequisite and Update
+   sections in the response (rather than zeroing the PRCOUNT and
+   UPCOUNT fields).  This allows clients to correlate RR-INDEX
+   values with the actual RRs that caused failures.  Per {{RFC2136}}
+   Section 3.8, servers may choose to echo these sections or omit
+   them; however, omitting them reduces the utility of the EUE
+   option's RR identification fields.
+
 ## Client Implementation
 
 Clients receiving the EUE option SHOULD:
@@ -538,10 +459,6 @@ Clients receiving the EUE option SHOULD:
 
 4. Log EUE information for debugging purposes.
 
-5. Treat EUE information as advisory; the data is
-   unauthenticated unless protected by TSIG or similar
-   mechanisms, and should not override RCODE processing.
-
 ## Multiple EUE Options
 
 A DNS message MAY contain more than one EUE option.  Receivers
@@ -556,11 +473,16 @@ for each detected failure reason.  Each option will have its
 own SECTION and RR-INDEX fields identifying the specific RR
 that caused that particular failure.
 
-However, server implementations may choose to evaluate UPDATE
-constraints in a particular order and reject the UPDATE upon
-detecting the first failure, without checking for additional
-violations.  Clients MUST NOT assume that a server will return
-all applicable error codes; the absence of a particular
+{{RFC2136}} Section 3.2 implies early return on prerequisite
+failures, using the pattern "test X, else signal [error code]"
+throughout, and the accompanying pseudocode shows immediate
+return upon detecting the first failure.  However, {{RFC2136}}
+does not explicitly prohibit servers from evaluating all
+prerequisites and update constraints before returning a response.
+Servers that wish to provide comprehensive error information MAY
+choose to check all constraints and return multiple EUE options
+identifying each failure.  Clients MUST NOT assume that a server
+will return all applicable error codes; the absence of a particular
 INFO-CODE does not guarantee that the corresponding constraint
 was satisfied.
 
@@ -597,6 +519,20 @@ reason for failure.  This is no different from existing
 RCODE manipulation risks, but operators should be aware that
 EUE data is subject to the same integrity concerns as other
 unsigned DNS data.
+
+Generating EUE options adds computational overhead to UPDATE
+processing, particularly if a server chooses to evaluate all
+constraints rather than returning on the first failure.  This
+overhead could be exploited in denial-of-service attacks against
+servers that accept UPDATE requests from untrusted or semi-trusted
+clients.  For example, BIND's "allow-update" feature permits
+IP-based access control for dynamic DNS registration, which may
+expose servers to UPDATE requests from clients that are not fully
+trusted.  Server implementations SHOULD make EUE generation
+configurable, allowing operators to disable the option entirely
+or limit its use (such as omitting EXTRA-TEXT or returning only
+a single EUE option) for UPDATE requests from sources that are
+not fully trusted.
 
 # IANA Considerations {#iana}
 
@@ -773,7 +709,3 @@ EUE options:
 ;;     RR-INDEX: 1
 ;;     EXTRA-TEXT: "TTL 300 != 3600"
 ~~~
-
-Note that servers are not required to return all applicable error
-codes.  A server MAY reject the UPDATE upon detecting the first
-error without checking for additional violations.
