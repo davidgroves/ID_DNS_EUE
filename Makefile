@@ -1,5 +1,6 @@
 # Internet Draft Build System
 # Supports both local Docker builds and GitHub Actions (i-d-template)
+# See: https://github.com/martinthomson/i-d-template
 
 LIBDIR ?= lib
 I_D_TEMPLATE_URL ?= https://github.com/martinthomson/i-d-template
