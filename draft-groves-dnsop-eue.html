@@ -1671,42 +1671,18 @@ server would set SECTION=1 and RR-INDEX=1.<a href="#section-4.2-6" class="pilcro
 <p id="section-5-1">This section defines the initial set of INFO-CODE values for
 the EUE option.  Each code includes guidance on when it should
 be used and what EXTRA-TEXT content may be appropriate.<a href="#section-5-1" class="pilcrow">¶</a></p>
-<p id="section-5-2">Servers implementing the EUE option <span class="bcp14">SHOULD</span> include it in
-responses to UPDATE requests that include an OPT pseudo-RR,
-when a failure condition matching one of these codes occurs.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-2">Unless otherwise noted, these INFO-CODEs are typically returned
+with RCODE REFUSED.<a href="#section-5-2" class="pilcrow">¶</a></p>
 <div id="info-code-0-other-error">
 <section id="section-5.1">
         <h3 id="name-info-code-0-other-error">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-info-code-0-other-error" class="section-name selfRef">INFO-CODE 0: Other Error</a>
         </h3>
-<table class="center" id="table-4">
-          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">0</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">Unspecified error</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.1-2">The error does not match any of the other defined codes.
+<p id="section-5.1-1">The error does not match any of the other defined codes.
 Implementations <span class="bcp14">SHOULD</span> include an EXTRA-TEXT value to provide
-additional context.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
-<p id="section-5.1-3">This code is intended for errors that do not fit other categories
-and for future extensibility.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
+additional context.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">This code is intended for errors that do not fit other categories
+and for future extensibility.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-1-cname-rr-exists-at-owner-name">
@@ -1714,38 +1690,14 @@ and for future extensibility.<a href="#section-5.1-3" class="pilcrow">¶</a></p>
         <h3 id="name-info-code-1-cname-rr-exists">
 <a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-info-code-1-cname-rr-exists" class="section-name selfRef">INFO-CODE 1: CNAME RR Exists at Owner Name</a>
         </h3>
-<table class="center" id="table-5">
-          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">1</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">CNAME RR exists at update target owner name</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.2-2">This INFO-CODE indicates that the UPDATE was rejected because a
+<p id="section-5.2-1">This INFO-CODE indicates that the UPDATE was rejected because a
 CNAME RR already exists at the owner name where the client
-attempted to add other RR types.<a href="#section-5.2-2" class="pilcrow">¶</a></p>
-<p id="section-5.2-3">Per <span>[<a href="#RFC1034" class="cite xref">RFC1034</a>]</span> Section 3.6.2, if a CNAME RR is present at a node,
+attempted to add other RR types.<a href="#section-5.2-1" class="pilcrow">¶</a></p>
+<p id="section-5.2-2">Per <span>[<a href="#RFC1034" class="cite xref">RFC1034</a>]</span> Section 3.6.2, if a CNAME RR is present at a node,
 no other data should be present (with exceptions for DNSSEC-related
-RRs as clarified by later specifications).<a href="#section-5.2-3" class="pilcrow">¶</a></p>
-<p id="section-5.2-4">The EXTRA-TEXT field <span class="bcp14">MAY</span> contain the text "CNAME exists" or similar
-descriptive text.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
-<p id="section-5.2-5">This code is typically returned with RCODE REFUSED or YXRRSET.<a href="#section-5.2-5" class="pilcrow">¶</a></p>
+RRs as clarified by later specifications).<a href="#section-5.2-2" class="pilcrow">¶</a></p>
+<p id="section-5.2-3">The EXTRA-TEXT field <span class="bcp14">MAY</span> contain the text "CNAME exists" or similar
+descriptive text.<a href="#section-5.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-2-other-data-exists-at-cname-owner-name">
@@ -1753,35 +1705,11 @@ descriptive text.<a href="#section-5.2-4" class="pilcrow">¶</a></p>
         <h3 id="name-info-code-2-other-data-exis">
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-info-code-2-other-data-exis" class="section-name selfRef">INFO-CODE 2: Other Data Exists at CNAME Owner Name</a>
         </h3>
-<table class="center" id="table-6">
-          <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">2</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">Other RRs exist where CNAME is being added</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.3-2">This INFO-CODE indicates that the UPDATE was rejected because the
+<p id="section-5.3-1">This INFO-CODE indicates that the UPDATE was rejected because the
 client attempted to add a CNAME RR at an owner name where other
-RR types already exist.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
-<p id="section-5.3-3">The EXTRA-TEXT field <span class="bcp14">MAY</span> indicate the RR type(s) that conflict
-with the CNAME addition.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
-<p id="section-5.3-4">This code is typically returned with RCODE REFUSED or YXRRSET.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+RR types already exist.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3-2">The EXTRA-TEXT field <span class="bcp14">MAY</span> indicate the RR type(s) that conflict
+with the CNAME addition.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-3-dname-rr-conflict">
@@ -1789,34 +1717,10 @@ with the CNAME addition.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
         <h3 id="name-info-code-3-dname-rr-confli">
 <a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-info-code-3-dname-rr-confli" class="section-name selfRef">INFO-CODE 3: DNAME RR Conflict</a>
         </h3>
-<table class="center" id="table-7">
-          <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">3</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">DNAME RR conflict</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.4-2">This INFO-CODE indicates that the UPDATE was rejected due to a
+<p id="section-5.4-1">This INFO-CODE indicates that the UPDATE was rejected due to a
 conflict involving a DNAME RR, as specified in <span>[<a href="#RFC6672" class="cite xref">RFC6672</a>]</span>.
 This includes attempts to add a DNAME where prohibited RRs
-exist, or adding RRs that conflict with an existing DNAME.<a href="#section-5.4-2" class="pilcrow">¶</a></p>
-<p id="section-5.4-3">This code is typically returned with RCODE REFUSED.<a href="#section-5.4-3" class="pilcrow">¶</a></p>
+exist, or adding RRs that conflict with an existing DNAME.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-4-missing-glue">
@@ -1824,39 +1728,15 @@ exist, or adding RRs that conflict with an existing DNAME.<a href="#section-5.4-
         <h3 id="name-info-code-4-missing-glue">
 <a href="#section-5.5" class="section-number selfRef">5.5. </a><a href="#name-info-code-4-missing-glue" class="section-name selfRef">INFO-CODE 4: Missing Glue</a>
         </h3>
-<table class="center" id="table-8">
-          <caption><a href="#table-8" class="selfRef">Table 8</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">4</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">Required glue records are missing</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.5-2">This INFO-CODE indicates that the UPDATE was rejected because it
+<p id="section-5.5-1">This INFO-CODE indicates that the UPDATE was rejected because it
 would create an NS RR pointing to an in-zone name for which no
 address RRs (A or AAAA) exist or are being added in the same
-UPDATE.<a href="#section-5.5-2" class="pilcrow">¶</a></p>
-<p id="section-5.5-3">Servers <span class="bcp14">MAY</span> perform this check to ensure zone integrity, as
+UPDATE.<a href="#section-5.5-1" class="pilcrow">¶</a></p>
+<p id="section-5.5-2">Servers <span class="bcp14">MAY</span> perform this check to ensure zone integrity, as
 delegations to unresolvable nameservers can cause resolution
-failures.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
-<p id="section-5.5-4">The EXTRA-TEXT field <span class="bcp14">MAY</span> contain the domain name of the target
-that lacks glue records.<a href="#section-5.5-4" class="pilcrow">¶</a></p>
-<p id="section-5.5-5">This code is typically returned with RCODE REFUSED.<a href="#section-5.5-5" class="pilcrow">¶</a></p>
+failures.<a href="#section-5.5-2" class="pilcrow">¶</a></p>
+<p id="section-5.5-3">The EXTRA-TEXT field <span class="bcp14">MAY</span> contain the domain name of the target
+that lacks glue records.<a href="#section-5.5-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-5-zone-apex-constraint">
@@ -1864,47 +1744,23 @@ that lacks glue records.<a href="#section-5.5-4" class="pilcrow">¶</a></p>
         <h3 id="name-info-code-5-zone-apex-const">
 <a href="#section-5.6" class="section-number selfRef">5.6. </a><a href="#name-info-code-5-zone-apex-const" class="section-name selfRef">INFO-CODE 5: Zone Apex Constraint</a>
         </h3>
-<table class="center" id="table-9">
-          <caption><a href="#table-9" class="selfRef">Table 9</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">5</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">Update violates zone apex constraints</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.6-2">This INFO-CODE indicates that the UPDATE was rejected because it
-would violate constraints on the zone apex.  Examples include:<a href="#section-5.6-2" class="pilcrow">¶</a></p>
+<p id="section-5.6-1">This INFO-CODE indicates that the UPDATE was rejected because it
+would violate constraints on the zone apex.  Examples include:<a href="#section-5.6-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.6-3.1">
-            <p id="section-5.6-3.1.1">Attempting to delete the SOA RR<a href="#section-5.6-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.6-2.1">
+            <p id="section-5.6-2.1.1">Attempting to delete the SOA RR<a href="#section-5.6-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.6-3.2">
-            <p id="section-5.6-3.2.1">Attempting to delete all NS RRs at the zone apex<a href="#section-5.6-3.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.6-2.2">
+            <p id="section-5.6-2.2.1">Attempting to delete all NS RRs at the zone apex<a href="#section-5.6-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.6-3.3">
-            <p id="section-5.6-3.3.1">Adding prohibited RR types at the apex<a href="#section-5.6-3.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.6-2.3">
+            <p id="section-5.6-2.3.1">Adding prohibited RR types at the apex<a href="#section-5.6-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.6-4">Per <span>[<a href="#RFC2136" class="cite xref">RFC2136</a>]</span> Section 3.4.2.3 and 3.4.2.4, certain RRs at
-the zone apex cannot be deleted.<a href="#section-5.6-4" class="pilcrow">¶</a></p>
-<p id="section-5.6-5">The EXTRA-TEXT field <span class="bcp14">MAY</span> describe the specific constraint
-violated, such as "cannot delete SOA" or "cannot delete last NS".<a href="#section-5.6-5" class="pilcrow">¶</a></p>
-<p id="section-5.6-6">This code is typically returned with RCODE REFUSED.<a href="#section-5.6-6" class="pilcrow">¶</a></p>
+<p id="section-5.6-3">Per <span>[<a href="#RFC2136" class="cite xref">RFC2136</a>]</span> Section 3.4.2.3 and 3.4.2.4, certain RRs at
+the zone apex cannot be deleted.<a href="#section-5.6-3" class="pilcrow">¶</a></p>
+<p id="section-5.6-4">The EXTRA-TEXT field <span class="bcp14">MAY</span> describe the specific constraint
+violated, such as "cannot delete SOA" or "cannot delete last NS".<a href="#section-5.6-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-6-singleton-type-conflict">
@@ -1912,35 +1768,11 @@ violated, such as "cannot delete SOA" or "cannot delete last NS".<a href="#secti
         <h3 id="name-info-code-6-singleton-type-">
 <a href="#section-5.7" class="section-number selfRef">5.7. </a><a href="#name-info-code-6-singleton-type-" class="section-name selfRef">INFO-CODE 6: Singleton Type Conflict</a>
         </h3>
-<table class="center" id="table-10">
-          <caption><a href="#table-10" class="selfRef">Table 10</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">6</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">Multiple RRs of singleton type</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.7-2">This INFO-CODE indicates that the UPDATE was rejected because it
+<p id="section-5.7-1">This INFO-CODE indicates that the UPDATE was rejected because it
 would result in multiple RRs of a type that permits only a
 single RR per owner name.  Per <span>[<a href="#RFC2136" class="cite xref">RFC2136</a>]</span> Section 1.1.5, SOA and
 CNAME are singleton types that cannot have multiple RRs at the
-same owner name.<a href="#section-5.7-2" class="pilcrow">¶</a></p>
-<p id="section-5.7-3">This code is typically returned with RCODE REFUSED.<a href="#section-5.7-3" class="pilcrow">¶</a></p>
+same owner name.<a href="#section-5.7-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-7-rrset-ttl-mismatch">
@@ -1948,37 +1780,13 @@ same owner name.<a href="#section-5.7-2" class="pilcrow">¶</a></p>
         <h3 id="name-info-code-7-rrset-ttl-misma">
 <a href="#section-5.8" class="section-number selfRef">5.8. </a><a href="#name-info-code-7-rrset-ttl-misma" class="section-name selfRef">INFO-CODE 7: RRset TTL Mismatch</a>
         </h3>
-<table class="center" id="table-11">
-          <caption><a href="#table-11" class="selfRef">Table 11</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">7</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">TTL mismatch within RRset</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.8-2">This INFO-CODE indicates that the UPDATE was rejected because it
+<p id="section-5.8-1">This INFO-CODE indicates that the UPDATE was rejected because it
 would add an RR to an existing RRset with a different TTL value.
 Per <span>[<a href="#RFC2181" class="cite xref">RFC2181</a>]</span> Section 5.2, all RRs in an RRset must have the
-same TTL.<a href="#section-5.8-2" class="pilcrow">¶</a></p>
-<p id="section-5.8-3">The EXTRA-TEXT field <span class="bcp14">MAY</span> indicate the expected TTL value.<a href="#section-5.8-3" class="pilcrow">¶</a></p>
-<p id="section-5.8-4">Servers <span class="bcp14">MAY</span> choose to automatically adjust TTL values rather than
-reject the UPDATE, in which case this code would not be used.<a href="#section-5.8-4" class="pilcrow">¶</a></p>
-<p id="section-5.8-5">This code is typically returned with RCODE REFUSED.<a href="#section-5.8-5" class="pilcrow">¶</a></p>
+same TTL.<a href="#section-5.8-1" class="pilcrow">¶</a></p>
+<p id="section-5.8-2">The EXTRA-TEXT field <span class="bcp14">MAY</span> indicate the expected TTL value.<a href="#section-5.8-2" class="pilcrow">¶</a></p>
+<p id="section-5.8-3">Servers <span class="bcp14">MAY</span> choose to automatically adjust TTL values rather than
+reject the UPDATE, in which case this code would not be used.<a href="#section-5.8-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-8-delegation-hierarchy-violation">
@@ -1986,43 +1794,19 @@ reject the UPDATE, in which case this code would not be used.<a href="#section-5
         <h3 id="name-info-code-8-delegation-hier">
 <a href="#section-5.9" class="section-number selfRef">5.9. </a><a href="#name-info-code-8-delegation-hier" class="section-name selfRef">INFO-CODE 8: Delegation Hierarchy Violation</a>
         </h3>
-<table class="center" id="table-12">
-          <caption><a href="#table-12" class="selfRef">Table 12</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">8</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">Update violates delegation hierarchy</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.9-2">This INFO-CODE indicates that the UPDATE was rejected because it
-would violate the delegation hierarchy.  Examples include:<a href="#section-5.9-2" class="pilcrow">¶</a></p>
+<p id="section-5.9-1">This INFO-CODE indicates that the UPDATE was rejected because it
+would violate the delegation hierarchy.  Examples include:<a href="#section-5.9-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-5.9-3.1">
-            <p id="section-5.9-3.1.1">Adding inappropriate RR types at a delegation point<a href="#section-5.9-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-5.9-2.1">
+            <p id="section-5.9-2.1.1">Adding inappropriate RR types at a delegation point<a href="#section-5.9-2.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.9-3.2">
-            <p id="section-5.9-3.2.1">Creating a delegation that conflicts with existing data<a href="#section-5.9-3.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.9-2.2">
+            <p id="section-5.9-2.2.1">Creating a delegation that conflicts with existing data<a href="#section-5.9-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-5.9-3.3">
-            <p id="section-5.9-3.3.1">Modifying RRs in a way that breaks the delegation relationship<a href="#section-5.9-3.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-5.9-2.3">
+            <p id="section-5.9-2.3.1">Modifying RRs in a way that breaks the delegation relationship<a href="#section-5.9-2.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-5.9-4">This code is typically returned with RCODE REFUSED.<a href="#section-5.9-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-9-update-policy-violation">
@@ -2030,44 +1814,20 @@ would violate the delegation hierarchy.  Examples include:<a href="#section-5.9-
         <h3 id="name-info-code-9-update-policy-v">
 <a href="#section-5.10" class="section-number selfRef">5.10. </a><a href="#name-info-code-9-update-policy-v" class="section-name selfRef">INFO-CODE 9: Update Policy Violation</a>
         </h3>
-<table class="center" id="table-13">
-          <caption><a href="#table-13" class="selfRef">Table 13</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">9</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">Update denied by server policy</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.10-2">This INFO-CODE indicates that the UPDATE was rejected due to
+<p id="section-5.10-1">This INFO-CODE indicates that the UPDATE was rejected due to
 server-configured update policies, distinct from authentication
 failures.  The UPDATE was properly authenticated but the
-specific change requested is not permitted by policy.<a href="#section-5.10-2" class="pilcrow">¶</a></p>
-<p id="section-5.10-3">For example, BIND distinguishes between <code>allow-update</code> and
+specific change requested is not permitted by policy.<a href="#section-5.10-1" class="pilcrow">¶</a></p>
+<p id="section-5.10-2">For example, BIND distinguishes between <code>allow-update</code> and
 <code>update-policy</code> configurations.  A zone configured with only
 <code>allow-update</code> will refuse modifications to apex NS RRs even
 when the client is properly authenticated.  Modifying apex
 NS RRs requires an explicit <code>update-policy</code> grant.  In this
 case, the client's credentials are valid, but the specific
-operation is not permitted.<a href="#section-5.10-3" class="pilcrow">¶</a></p>
-<p id="section-5.10-4">The EXTRA-TEXT field <span class="bcp14">MAY</span> provide additional context about the
+operation is not permitted.<a href="#section-5.10-2" class="pilcrow">¶</a></p>
+<p id="section-5.10-3">The EXTRA-TEXT field <span class="bcp14">MAY</span> provide additional context about the
 policy restriction, such as "apex NS modification requires
-update-policy".<a href="#section-5.10-4" class="pilcrow">¶</a></p>
-<p id="section-5.10-5">This code is typically returned with RCODE REFUSED.<a href="#section-5.10-5" class="pilcrow">¶</a></p>
+update-policy".<a href="#section-5.10-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="info-code-10-rrset-size-limit-exceeded">
@@ -2075,40 +1835,16 @@ update-policy".<a href="#section-5.10-4" class="pilcrow">¶</a></p>
         <h3 id="name-info-code-10-rrset-size-lim">
 <a href="#section-5.11" class="section-number selfRef">5.11. </a><a href="#name-info-code-10-rrset-size-lim" class="section-name selfRef">INFO-CODE 10: RRset Size Limit Exceeded</a>
         </h3>
-<table class="center" id="table-14">
-          <caption><a href="#table-14" class="selfRef">Table 14</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Field</th>
-              <th class="text-left" rowspan="1" colspan="1">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">INFO-CODE</td>
-              <td class="text-left" rowspan="1" colspan="1">10</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Purpose</td>
-              <td class="text-left" rowspan="1" colspan="1">RRset size limit exceeded</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Reference</td>
-              <td class="text-left" rowspan="1" colspan="1">This document</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-5.11-2">This INFO-CODE indicates that the UPDATE was rejected because
+<p id="section-5.11-1">This INFO-CODE indicates that the UPDATE was rejected because
 accepting it would cause an RRset to exceed the server's
-configured limit on the number of RRs per RRset.<a href="#section-5.11-2" class="pilcrow">¶</a></p>
-<p id="section-5.11-3">Some DNS server implementations impose limits on RRset sizes
+configured limit on the number of RRs per RRset.<a href="#section-5.11-1" class="pilcrow">¶</a></p>
+<p id="section-5.11-2">Some DNS server implementations impose limits on RRset sizes
 to prevent performance degradation or as a security measure.
 For example, BIND 9.18.28 and later versions limit RRsets to
 100 records per type by default (configurable via
-<code>max-records-per-type</code>).<a href="#section-5.11-3" class="pilcrow">¶</a></p>
-<p id="section-5.11-4">The EXTRA-TEXT field <span class="bcp14">MAY</span> indicate the configured limit, such
-as "max 100 records per type".<a href="#section-5.11-4" class="pilcrow">¶</a></p>
-<p id="section-5.11-5">This code is typically returned with RCODE REFUSED.<a href="#section-5.11-5" class="pilcrow">¶</a></p>
+<code>max-records-per-type</code>).<a href="#section-5.11-2" class="pilcrow">¶</a></p>
+<p id="section-5.11-3">The EXTRA-TEXT field <span class="bcp14">MAY</span> indicate the configured limit, such
+as "max 100 records per type".<a href="#section-5.11-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2147,6 +1883,15 @@ information disclosure concerns.<a href="#section-6.1-2.4.1" class="pilcrow">¶<
 <span>[<a href="#RFC2136" class="cite xref">RFC2136</a>]</span>; the EUE option provides supplementary
 information and does not replace RCODEs.<a href="#section-6.1-2.5.1" class="pilcrow">¶</a></p>
 </li>
+          <li id="section-6.1-2.6">
+            <p id="section-6.1-2.6.1">When returning EUE options, include the Prerequisite and Update
+sections in the response (rather than zeroing the PRCOUNT and
+UPCOUNT fields).  This allows clients to correlate RR-INDEX
+values with the actual RRs that caused failures.  Per <span>[<a href="#RFC2136" class="cite xref">RFC2136</a>]</span>
+Section 3.8, servers may choose to echo these sections or omit
+them; however, omitting them reduces the utility of the EUE
+option's RR identification fields.<a href="#section-6.1-2.6.1" class="pilcrow">¶</a></p>
+</li>
         </ol>
 </section>
 </div>
@@ -2174,11 +1919,6 @@ option is not present.<a href="#section-6.2-2.3.1" class="pilcrow">¶</a></p>
           <li id="section-6.2-2.4">
             <p id="section-6.2-2.4.1">Log EUE information for debugging purposes.<a href="#section-6.2-2.4.1" class="pilcrow">¶</a></p>
 </li>
-          <li id="section-6.2-2.5">
-            <p id="section-6.2-2.5.1">Treat EUE information as advisory; the data is
-unauthenticated unless protected by TSIG or similar
-mechanisms, and should not override RCODE processing.<a href="#section-6.2-2.5.1" class="pilcrow">¶</a></p>
-</li>
         </ol>
 </section>
 </div>
@@ -2197,11 +1937,16 @@ servers <span class="bcp14">MAY</span> include multiple EUE options in the respo
 for each detected failure reason.  Each option will have its
 own SECTION and RR-INDEX fields identifying the specific RR
 that caused that particular failure.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
-<p id="section-6.3-3">However, server implementations may choose to evaluate UPDATE
-constraints in a particular order and reject the UPDATE upon
-detecting the first failure, without checking for additional
-violations.  Clients <span class="bcp14">MUST NOT</span> assume that a server will return
-all applicable error codes; the absence of a particular
+<p id="section-6.3-3"><span>[<a href="#RFC2136" class="cite xref">RFC2136</a>]</span> Section 3.2 implies early return on prerequisite
+failures, using the pattern "test X, else signal [error code]"
+throughout, and the accompanying pseudocode shows immediate
+return upon detecting the first failure.  However, <span>[<a href="#RFC2136" class="cite xref">RFC2136</a>]</span>
+does not explicitly prohibit servers from evaluating all
+prerequisites and update constraints before returning a response.
+Servers that wish to provide comprehensive error information <span class="bcp14">MAY</span>
+choose to check all constraints and return multiple EUE options
+identifying each failure.  Clients <span class="bcp14">MUST NOT</span> assume that a server
+will return all applicable error codes; the absence of a particular
 INFO-CODE does not guarantee that the corresponding constraint
 was satisfied.<a href="#section-6.3-3" class="pilcrow">¶</a></p>
 <p id="section-6.3-4">When a server does return multiple EUE options, no ordering
@@ -2239,6 +1984,19 @@ reason for failure.  This is no different from existing
 RCODE manipulation risks, but operators should be aware that
 EUE data is subject to the same integrity concerns as other
 unsigned DNS data.<a href="#section-7-5" class="pilcrow">¶</a></p>
+<p id="section-7-6">Generating EUE options adds computational overhead to UPDATE
+processing, particularly if a server chooses to evaluate all
+constraints rather than returning on the first failure.  This
+overhead could be exploited in denial-of-service attacks against
+servers that accept UPDATE requests from untrusted or semi-trusted
+clients.  For example, BIND's "allow-update" feature permits
+IP-based access control for dynamic DNS registration, which may
+expose servers to UPDATE requests from clients that are not fully
+trusted.  Server implementations <span class="bcp14">SHOULD</span> make EUE generation
+configurable, allowing operators to disable the option entirely
+or limit its use (such as omitting EXTRA-TEXT or returning only
+a single EUE option) for UPDATE requests from sources that are
+not fully trusted.<a href="#section-7-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="iana">
@@ -2253,8 +2011,8 @@ unsigned DNS data.<a href="#section-7-5" class="pilcrow">¶</a></p>
         </h3>
 <p id="section-8.1-1">This document requests IANA to assign a new option code in the
 "DNS EDNS0 Option Codes (OPT)" registry:<a href="#section-8.1-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-15">
-          <caption><a href="#table-15" class="selfRef">Table 15</a></caption>
+<table class="center" id="table-4">
+          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">Value</th>
@@ -2287,8 +2045,8 @@ Served" for values 0-49151, and "Private Use" for values
 49152-65535, following the same model as the "Extended DNS Error
 Codes" registry <span>[<a href="#RFC8914" class="cite xref">RFC8914</a>]</span>.<a href="#section-8.2-2" class="pilcrow">¶</a></p>
 <p id="section-8.2-3">The initial contents of this registry are:<a href="#section-8.2-3" class="pilcrow">¶</a></p>
-<table class="center" id="table-16">
-          <caption><a href="#table-16" class="selfRef">Table 16</a></caption>
+<table class="center" id="table-5">
+          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
 <thead>
             <tr>
               <th class="text-left" rowspan="1" colspan="1">INFO-CODE</th>
@@ -2597,9 +2355,6 @@ EUE options:<a href="#appendix-B.5-4" class="pilcrow">¶</a></p>
 ;;     EXTRA-TEXT: "TTL 300 != 3600"
 </pre><a href="#appendix-B.5-5" class="pilcrow">¶</a>
 </div>
-<p id="appendix-B.5-6">Note that servers are not required to return all applicable error
-codes.  A server <span class="bcp14">MAY</span> reject the UPDATE upon detecting the first
-error without checking for additional violations.<a href="#appendix-B.5-6" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
