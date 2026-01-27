@@ -1358,30 +1358,11 @@ failure.<a href="#section-1-6" class="pilcrow">¶</a></p>
         <h3 id="name-use-cases">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-use-cases" class="section-name selfRef">Use Cases</a>
         </h3>
-<p id="section-1.1-1">The EUE option defined in this document benefits several use cases:<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<ul class="normal">
-<li class="normal" id="section-1.1-2.1">
-            <p id="section-1.1-2.1.1">Automated provisioning systems that create DNS RRs as part of
-service deployment can receive actionable error information,
-including which specific RR in a batch UPDATE caused the failure,
-enabling automatic correction or precise problem reporting.<a href="#section-1.1-2.1.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-2.2">
-            <p id="section-1.1-2.2.1">Dynamic DNS clients (such as those used for home networks or
-dynamic IP addressing) can provide meaningful error messages
-to users when updates fail.<a href="#section-1.1-2.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-2.3">
-            <p id="section-1.1-2.3.1">DNS management APIs and tools can surface detailed error
-information rather than generic failure messages, and can
-programmatically identify the problematic record.<a href="#section-1.1-2.3.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-1.1-2.4">
-            <p id="section-1.1-2.4.1">Debugging and troubleshooting DNS configuration issues becomes
-more straightforward when both the exact cause of failure and
-the specific failing RR are known.<a href="#section-1.1-2.4.1" class="pilcrow">¶</a></p>
-</li>
-        </ul>
+<p id="section-1.1-1">The EUE option defined in this document primarily benefits automated
+systems such as provisioning tools and DNS management APIs.  These
+systems can receive actionable error information identifying which
+specific RR in an UPDATE caused the failure, enabling automatic
+correction or precise problem reporting.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
