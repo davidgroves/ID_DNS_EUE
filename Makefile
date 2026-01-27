@@ -1,43 +1,28 @@
 # Internet Draft Build System
-# Uses containerized i-d-template toolchain
+# Supports both local Docker builds and GitHub Actions (i-d-template)
 
+LIBDIR ?= lib
+I_D_TEMPLATE_URL ?= https://github.com/martinthomson/i-d-template
+
+# Bootstrap: fetch lib/main.mk if it doesn't exist
+$(LIBDIR)/main.mk:
+	git clone --depth 1 $(I_D_TEMPLATE_URL) $(LIBDIR)
+
+-include $(LIBDIR)/main.mk
+
+# Local Docker-based build targets (for development without native tools)
 DOCKER_COMPOSE ?= docker compose
 
-.PHONY: all build watch shell clean help
+.PHONY: docker docker-watch docker-shell docker-clean
 
-# Default target - build all drafts
-all: build
-
-# Build drafts using container
-build:
+docker:
 	$(DOCKER_COMPOSE) run --rm build
 
-# Watch for changes and rebuild automatically
-watch:
+docker-watch:
 	$(DOCKER_COMPOSE) run --rm watch
 
-# Open interactive shell in container
-shell:
+docker-shell:
 	$(DOCKER_COMPOSE) run --rm shell
 
-# Clean build artifacts
-clean:
-	rm -f draft-*.txt draft-*.html draft-*.xml
-	rm -rf lib .gems .venv .refcache .targets.mk
-
-# Remove cached container volumes
-clean-all: clean
+docker-clean:
 	$(DOCKER_COMPOSE) down -v
-
-# Show help
-help:
-	@echo "Internet Draft Build System"
-	@echo ""
-	@echo "Usage:"
-	@echo "  make          Build all drafts (HTML + TXT)"
-	@echo "  make watch    Watch for changes and rebuild automatically"
-	@echo "  make shell    Open interactive shell in build container"
-	@echo "  make clean    Remove build artifacts"
-	@echo "  make clean-all  Remove artifacts and cached volumes"
-	@echo ""
-	@echo "Prerequisites: Docker"
