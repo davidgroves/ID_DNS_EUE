@@ -1,0 +1,965 @@
+
+
+
+
+DNSOP Working Group                                            D. Groves
+Internet-Draft                                                   Nominet
+Intended status: Standards Track                         27 January 2026
+Expires: 31 July 2026
+
+
+                Extended UPDATE Error (EUE) EDNS Option
+                     draft-groves-dnsop-eue-latest
+
+Abstract
+
+   This document defines a new EDNS option, the Extended UPDATE Error
+   (EUE) option, for use with Dynamic DNS UPDATE operations as specified
+   in RFC 2136.  When a DNS UPDATE request fails, servers currently
+   return limited Response Codes (RCODEs) that do not fully convey the
+   reason for failure.  The EUE option defined here allows servers to
+   provide detailed information about why an UPDATE was rejected,
+   including which specific resource record in the UPDATE message caused
+   the failure.  This enables clients to take appropriate corrective
+   action or provide meaningful diagnostic information to operators.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://davidgroves.github.io/ID_DNS_EUE/draft-groves-dnsop-eue.html.
+   Status information for this document may be found at
+   https://datatracker.ietf.org/doc/draft-groves-dnsop-eue/.
+
+   Discussion of this document takes place on the DNSOP Working Group
+   mailing list (mailto:dnsop@ietf.org), which is archived at
+   https://mailarchive.ietf.org/arch/browse/dnsop/.  Subscribe at
+   https://www.ietf.org/mailman/listinfo/dnsop/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/davidgroves/ID_DNS_EUE.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 31 July 2026.
+
+Copyright Notice
+
+   Copyright (c) 2026 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Use Cases
+   2.  Conventions and Definitions
+   3.  Background: DNS UPDATE Error Signaling
+     3.1.  Existing RCODEs
+     3.2.  Limitations
+   4.  Extended UPDATE Error EDNS Option Format
+     4.1.  Option Format
+     4.2.  RR Identification Fields
+   5.  Extended UPDATE Error Codes
+     5.1.  INFO-CODE 0: Other Error
+     5.2.  INFO-CODE 1: CNAME RR Exists at Owner Name
+     5.3.  INFO-CODE 2: Other Data Exists at CNAME Owner Name
+     5.4.  INFO-CODE 3: DNAME RR Conflict
+     5.5.  INFO-CODE 4: Missing Glue
+     5.6.  INFO-CODE 5: Zone Apex Constraint
+     5.7.  INFO-CODE 6: Singleton Type Conflict
+     5.8.  INFO-CODE 7: RRset TTL Mismatch
+     5.9.  INFO-CODE 8: Delegation Hierarchy Violation
+     5.10. INFO-CODE 9: Update Policy Violation
+     5.11. INFO-CODE 10: RRset Size Limit Exceeded
+   6.  Implementation Considerations
+     6.1.  Server Implementation
+     6.2.  Client Implementation
+     6.3.  Multiple EUE Options
+   7.  Security Considerations
+   8.  IANA Considerations
+     8.1.  New EDNS Option Code
+     8.2.  New Registry: Extended UPDATE Error Codes
+   9.  References
+     9.1.  Normative References
+     9.2.  Informative References
+   Acknowledgments
+   Examples
+     CNAME Conflict Example
+     Missing Glue Example
+     Zone Apex Constraint Example
+     Update Policy Violation Example
+     Multiple EUE Options Example
+   Author's Address
+
+1.  Introduction
+
+   Dynamic DNS UPDATE [RFC2136] allows authorised clients to modify DNS
+   zone data.  When an UPDATE fails, the server returns one of several
+   Response Codes (RCODEs) defined in [RFC2136], such as REFUSED,
+   SERVFAIL, YXDOMAIN, YXRRSET, NXRRSET, NOTAUTH, or NOTZONE.
+
+   While these RCODEs indicate that an UPDATE was unsuccessful, they
+   often do not provide sufficient information for a client to
+   understand why the failure occurred.  For example, an UPDATE might be
+   refused because:
+
+   *  A CNAME RR already exists at the owner name where new RRs are
+      being added
+
+   *  An NS RR points to an in-zone name that lacks the required A or
+      AAAA glue records
+
+   *  The update would create a CNAME at an owner name where other data
+      exists
+
+   *  The update targets a domain name outside the zone
+
+   All of these scenarios might result in a REFUSED RCODE, leaving the
+   client unable to determine the actual cause of failure without manual
+   investigation.
+
+   The Extended DNS Errors (EDE) mechanism [RFC8914] was considered for
+   this purpose.  However, EDE's EXTRA-TEXT field is explicitly
+   designated for human consumption and not automated parsing.
+   Additionally, EDE provides no structured way to identify which
+   specific RR within an UPDATE message caused the failure.  Since
+   UPDATE messages may contain multiple RRs in both the Prerequisite and
+   Update sections, this limitation significantly reduces the utility
+   for automated systems.
+
+   This document therefore defines a new EDNS option [RFC6891], the
+   Extended UPDATE Error (EUE) option, that includes structured fields
+   to identify both the failing section and the specific RR index within
+   that section.  This enables clients to programmatically determine
+   exactly which part of their UPDATE request caused the failure.
+
+1.1.  Use Cases
+
+   The EUE option defined in this document benefits several use cases:
+
+   *  Automated provisioning systems that create DNS RRs as part of
+      service deployment can receive actionable error information,
+      including which specific RR in a batch UPDATE caused the failure,
+      enabling automatic correction or precise problem reporting.
+
+   *  Dynamic DNS clients (such as those used for home networks or
+      dynamic IP addressing) can provide meaningful error messages to
+      users when updates fail.
+
+   *  DNS management APIs and tools can surface detailed error
+      information rather than generic failure messages, and can
+      programmatically identify the problematic record.
+
+   *  Debugging and troubleshooting DNS configuration issues becomes
+      more straightforward when both the exact cause of failure and the
+      specific failing RR are known.
+
+2.  Conventions and Definitions
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   This document uses DNS terminology defined in [RFC9499].  In
+   particular:
+
+   *  "Owner name" refers to the domain name where a resource record is
+      found.
+
+   *  "RR" (Resource Record) refers to a single DNS record.
+
+   *  "RRset" refers to a set of RRs with the same owner name, class,
+      and type.
+
+   *  "Node" refers to a point in the DNS namespace tree, identified by
+      a domain name.
+
+   The term "in-zone" as used in this document refers to a domain name
+   that is a subdomain of, or equal to, the zone's origin (apex).
+
+3.  Background: DNS UPDATE Error Signaling
+
+3.1.  Existing RCODEs
+
+   [RFC2136] defines the following RCODEs specific to UPDATE operations:
+
+        +=======+==========+=====================================+
+        | RCODE | Name     | Description                         |
+        +=======+==========+=====================================+
+        | 6     | YXDOMAIN | Name exists when it should not      |
+        +-------+----------+-------------------------------------+
+        | 7     | YXRRSET  | RRset exists when it should not     |
+        +-------+----------+-------------------------------------+
+        | 8     | NXRRSET  | RRset does not exist when it should |
+        +-------+----------+-------------------------------------+
+        | 9     | NOTAUTH  | Server not authoritative for zone   |
+        +-------+----------+-------------------------------------+
+        | 10    | NOTZONE  | Name not contained in zone          |
+        +-------+----------+-------------------------------------+
+
+                                 Table 1
+
+   Additionally, the standard RCODEs from [RFC1035] apply:
+
+         +=======+==========+===================================+
+         | RCODE | Name     | Description                       |
+         +=======+==========+===================================+
+         | 1     | FORMERR  | Format error in UPDATE message    |
+         +-------+----------+-----------------------------------+
+         | 2     | SERVFAIL | Server failure processing UPDATE  |
+         +-------+----------+-----------------------------------+
+         | 5     | REFUSED  | UPDATE refused for policy reasons |
+         +-------+----------+-----------------------------------+
+
+                                 Table 2
+
+   Note that YXDOMAIN, YXRRSET, and NXRRSET are returned during
+   prerequisite processing ([RFC2136] Section 3.2) when the client's
+   explicit prerequisites fail.  These RCODEs indicate that the zone
+   state did not match what the client expected.  They are NOT used when
+   the server rejects an UPDATE due to internal constraint checks (such
+   as the CNAME singleton rule) during update processing.  Server-side
+   constraint violations typically result in REFUSED, which provides no
+   indication of which constraint was violated.
+
+3.2.  Limitations
+
+   The existing RCODEs have several limitations:
+
+   1.  *Ambiguity*: REFUSED is used for many different failure reasons,
+       from authentication failures to zone integrity violations.
+
+   2.  *No specificity*: When an UPDATE violates zone data constraints
+       (such as adding data where a CNAME exists), there is no standard
+       way to communicate the specific constraint that was violated.
+
+   3.  *Limited debugging*: Operators must examine server logs to
+       determine why an UPDATE failed, which may not be practical for
+       automated systems or remote clients.
+
+4.  Extended UPDATE Error EDNS Option Format
+
+   This section defines the Extended UPDATE Error (EUE) EDNS option.
+
+4.1.  Option Format
+
+   The EUE option is encoded in the RDATA of an OPT pseudo-RR as
+   specified in [RFC6891].  The wire format is as follows:
+
+                                    1  1  1  1  1  1
+        0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+      |                 OPTION-CODE                  |
+      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+      |                OPTION-LENGTH                 |
+      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+      |                  INFO-CODE                   |
+      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+      |    SECTION    |         RR-INDEX             |
+      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+      |                                              |
+      /                 EXTRA-TEXT                   /
+      |                                              |
+      +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+
+   OPTION-CODE:  2 octets.  The EDNS option code assigned by IANA for
+      the Extended UPDATE Error option (see Section 8).
+
+   OPTION-LENGTH:  2 octets.  The length of the payload (everything
+      after OPTION-LENGTH) in octets.  MUST be at least 4.
+
+   INFO-CODE:  2 octets.  A 16-bit unsigned integer providing the error
+      reason.  Values are registered in the "Extended UPDATE Error
+      Codes" registry (see Section 8).
+
+   SECTION:  1 octet.  Identifies which section of the UPDATE message
+      contains the RR that caused the error.  Values are:
+
+      *  0 = Prerequisite section (Answer section in DNS message)
+
+      *  1 = Update section (Authority section in DNS message)
+
+   RR-INDEX:  2 octets.  A 16-bit unsigned integer containing the
+      0-based index of the RR within the indicated section that caused
+      the error.
+
+   EXTRA-TEXT:  A variable-length, UTF-8-encoded text field that MAY
+      hold additional textual information.  This information is intended
+      for human consumption.  The length is derived from OPTION-LENGTH
+      minus 5 (the fixed header size).  This field MAY be zero-length.
+
+4.2.  RR Identification Fields
+
+   The SECTION and RR-INDEX fields allow servers to indicate precisely
+   which RR in an UPDATE message caused the failure.
+
+   Per [RFC2136], an UPDATE message repurposes the standard DNS message
+   sections:
+
+   *  The Answer section contains Prerequisite RRs
+
+   *  The Authority section contains Update RRs
+
+   The SECTION field maps to these as follows:
+
+             +=========+===============+=====================+
+             | SECTION | RFC 2136 Name | DNS Message Section |
+             +=========+===============+=====================+
+             | 0       | Prerequisite  | Answer              |
+             +---------+---------------+---------------------+
+             | 1       | Update        | Authority           |
+             +---------+---------------+---------------------+
+
+                                  Table 3
+
+   The RR-INDEX field contains a 0-based index into the indicated
+   section.  For example, if an UPDATE message contains three RRs in the
+   Update section and the second RR causes a failure, the server would
+   set SECTION=1 and RR-INDEX=1.
+
+5.  Extended UPDATE Error Codes
+
+   This section defines the initial set of INFO-CODE values for the EUE
+   option.  Each code includes guidance on when it should be used and
+   what EXTRA-TEXT content may be appropriate.
+
+   Servers implementing the EUE option SHOULD include it in responses to
+   UPDATE requests that include an OPT pseudo-RR, when a failure
+   condition matching one of these codes occurs.
+
+5.1.  INFO-CODE 0: Other Error
+
+                     +===========+===================+
+                     | Field     | Value             |
+                     +===========+===================+
+                     | INFO-CODE | 0                 |
+                     +-----------+-------------------+
+                     | Purpose   | Unspecified error |
+                     +-----------+-------------------+
+                     | Reference | This document     |
+                     +-----------+-------------------+
+
+                                  Table 4
+
+   The error does not match any of the other defined codes.
+   Implementations SHOULD include an EXTRA-TEXT value to provide
+   additional context.
+
+   This code is intended for errors that do not fit other categories and
+   for future extensibility.
+
+5.2.  INFO-CODE 1: CNAME RR Exists at Owner Name
+
+        +===========+=============================================+
+        | Field     | Value                                       |
+        +===========+=============================================+
+        | INFO-CODE | 1                                           |
+        +-----------+---------------------------------------------+
+        | Purpose   | CNAME RR exists at update target owner name |
+        +-----------+---------------------------------------------+
+        | Reference | This document                               |
+        +-----------+---------------------------------------------+
+
+                                  Table 5
+
+   This INFO-CODE indicates that the UPDATE was rejected because a CNAME
+   RR already exists at the owner name where the client attempted to add
+   other RR types.
+
+   Per [RFC1034] Section 3.6.2, if a CNAME RR is present at a node, no
+   other data should be present (with exceptions for DNSSEC-related RRs
+   as clarified by later specifications).
+
+   The EXTRA-TEXT field MAY contain the text "CNAME exists" or similar
+   descriptive text.
+
+   This code is typically returned with RCODE REFUSED or YXRRSET.
+
+5.3.  INFO-CODE 2: Other Data Exists at CNAME Owner Name
+
+        +===========+============================================+
+        | Field     | Value                                      |
+        +===========+============================================+
+        | INFO-CODE | 2                                          |
+        +-----------+--------------------------------------------+
+        | Purpose   | Other RRs exist where CNAME is being added |
+        +-----------+--------------------------------------------+
+        | Reference | This document                              |
+        +-----------+--------------------------------------------+
+
+                                 Table 6
+
+   This INFO-CODE indicates that the UPDATE was rejected because the
+   client attempted to add a CNAME RR at an owner name where other RR
+   types already exist.
+
+   The EXTRA-TEXT field MAY indicate the RR type(s) that conflict with
+   the CNAME addition.
+
+   This code is typically returned with RCODE REFUSED or YXRRSET.
+
+5.4.  INFO-CODE 3: DNAME RR Conflict
+
+                     +===========+===================+
+                     | Field     | Value             |
+                     +===========+===================+
+                     | INFO-CODE | 3                 |
+                     +-----------+-------------------+
+                     | Purpose   | DNAME RR conflict |
+                     +-----------+-------------------+
+                     | Reference | This document     |
+                     +-----------+-------------------+
+
+                                  Table 7
+
+   This INFO-CODE indicates that the UPDATE was rejected due to a
+   conflict involving a DNAME RR, as specified in [RFC6672].  This
+   includes attempts to add a DNAME where prohibited RRs exist, or
+   adding RRs that conflict with an existing DNAME.
+
+   This code is typically returned with RCODE REFUSED.
+
+5.5.  INFO-CODE 4: Missing Glue
+
+             +===========+===================================+
+             | Field     | Value                             |
+             +===========+===================================+
+             | INFO-CODE | 4                                 |
+             +-----------+-----------------------------------+
+             | Purpose   | Required glue records are missing |
+             +-----------+-----------------------------------+
+             | Reference | This document                     |
+             +-----------+-----------------------------------+
+
+                                  Table 8
+
+   This INFO-CODE indicates that the UPDATE was rejected because it
+   would create an NS RR pointing to an in-zone name for which no
+   address RRs (A or AAAA) exist or are being added in the same UPDATE.
+
+   Servers MAY perform this check to ensure zone integrity, as
+   delegations to unresolvable nameservers can cause resolution
+   failures.
+
+   The EXTRA-TEXT field MAY contain the domain name of the target that
+   lacks glue records.
+
+   This code is typically returned with RCODE REFUSED.
+
+5.6.  INFO-CODE 5: Zone Apex Constraint
+
+           +===========+=======================================+
+           | Field     | Value                                 |
+           +===========+=======================================+
+           | INFO-CODE | 5                                     |
+           +-----------+---------------------------------------+
+           | Purpose   | Update violates zone apex constraints |
+           +-----------+---------------------------------------+
+           | Reference | This document                         |
+           +-----------+---------------------------------------+
+
+                                  Table 9
+
+   This INFO-CODE indicates that the UPDATE was rejected because it
+   would violate constraints on the zone apex.  Examples include:
+
+   *  Attempting to delete the SOA RR
+
+   *  Attempting to delete all NS RRs at the zone apex
+
+   *  Adding prohibited RR types at the apex
+
+   Per [RFC2136] Section 3.4.2.3 and 3.4.2.4, certain RRs at the zone
+   apex cannot be deleted.
+
+   The EXTRA-TEXT field MAY describe the specific constraint violated,
+   such as "cannot delete SOA" or "cannot delete last NS".
+
+   This code is typically returned with RCODE REFUSED.
+
+5.7.  INFO-CODE 6: Singleton Type Conflict
+
+              +===========+================================+
+              | Field     | Value                          |
+              +===========+================================+
+              | INFO-CODE | 6                              |
+              +-----------+--------------------------------+
+              | Purpose   | Multiple RRs of singleton type |
+              +-----------+--------------------------------+
+              | Reference | This document                  |
+              +-----------+--------------------------------+
+
+                                 Table 10
+
+   This INFO-CODE indicates that the UPDATE was rejected because it
+   would result in multiple RRs of a type that permits only a single RR
+   per owner name.  Per [RFC2136] Section 1.1.5, SOA and CNAME are
+   singleton types that cannot have multiple RRs at the same owner name.
+
+   This code is typically returned with RCODE REFUSED.
+
+5.8.  INFO-CODE 7: RRset TTL Mismatch
+
+                 +===========+===========================+
+                 | Field     | Value                     |
+                 +===========+===========================+
+                 | INFO-CODE | 7                         |
+                 +-----------+---------------------------+
+                 | Purpose   | TTL mismatch within RRset |
+                 +-----------+---------------------------+
+                 | Reference | This document             |
+                 +-----------+---------------------------+
+
+                                  Table 11
+
+   This INFO-CODE indicates that the UPDATE was rejected because it
+   would add an RR to an existing RRset with a different TTL value.  Per
+   [RFC2181] Section 5.2, all RRs in an RRset must have the same TTL.
+
+   The EXTRA-TEXT field MAY indicate the expected TTL value.
+
+   Servers MAY choose to automatically adjust TTL values rather than
+   reject the UPDATE, in which case this code would not be used.
+
+   This code is typically returned with RCODE REFUSED.
+
+5.9.  INFO-CODE 8: Delegation Hierarchy Violation
+
+           +===========+======================================+
+           | Field     | Value                                |
+           +===========+======================================+
+           | INFO-CODE | 8                                    |
+           +-----------+--------------------------------------+
+           | Purpose   | Update violates delegation hierarchy |
+           +-----------+--------------------------------------+
+           | Reference | This document                        |
+           +-----------+--------------------------------------+
+
+                                 Table 12
+
+   This INFO-CODE indicates that the UPDATE was rejected because it
+   would violate the delegation hierarchy.  Examples include:
+
+   *  Adding inappropriate RR types at a delegation point
+
+   *  Creating a delegation that conflicts with existing data
+
+   *  Modifying RRs in a way that breaks the delegation relationship
+
+   This code is typically returned with RCODE REFUSED.
+
+5.10.  INFO-CODE 9: Update Policy Violation
+
+              +===========+================================+
+              | Field     | Value                          |
+              +===========+================================+
+              | INFO-CODE | 9                              |
+              +-----------+--------------------------------+
+              | Purpose   | Update denied by server policy |
+              +-----------+--------------------------------+
+              | Reference | This document                  |
+              +-----------+--------------------------------+
+
+                                 Table 13
+
+   This INFO-CODE indicates that the UPDATE was rejected due to server-
+   configured update policies, distinct from authentication failures.
+   The UPDATE was properly authenticated but the specific change
+   requested is not permitted by policy.
+
+   For example, BIND distinguishes between allow-update and update-
+   policy configurations.  A zone configured with only allow-update will
+   refuse modifications to apex NS RRs even when the client is properly
+   authenticated.  Modifying apex NS RRs requires an explicit update-
+   policy grant.  In this case, the client's credentials are valid, but
+   the specific operation is not permitted.
+
+   The EXTRA-TEXT field MAY provide additional context about the policy
+   restriction, such as "apex NS modification requires update-policy".
+
+   This code is typically returned with RCODE REFUSED.
+
+5.11.  INFO-CODE 10: RRset Size Limit Exceeded
+
+                 +===========+===========================+
+                 | Field     | Value                     |
+                 +===========+===========================+
+                 | INFO-CODE | 10                        |
+                 +-----------+---------------------------+
+                 | Purpose   | RRset size limit exceeded |
+                 +-----------+---------------------------+
+                 | Reference | This document             |
+                 +-----------+---------------------------+
+
+                                  Table 14
+
+   This INFO-CODE indicates that the UPDATE was rejected because
+   accepting it would cause an RRset to exceed the server's configured
+   limit on the number of RRs per RRset.
+
+   Some DNS server implementations impose limits on RRset sizes to
+   prevent performance degradation or as a security measure.  For
+   example, BIND 9.18.28 and later versions limit RRsets to 100 records
+   per type by default (configurable via max-records-per-type).
+
+   The EXTRA-TEXT field MAY indicate the configured limit, such as "max
+   100 records per type".
+
+   This code is typically returned with RCODE REFUSED.
+
+6.  Implementation Considerations
+
+6.1.  Server Implementation
+
+   Servers implementing the EUE option SHOULD:
+
+   1.  Include the EUE option only in responses to UPDATE requests that
+       contained an OPT pseudo-RR.
+
+   2.  Use the most specific applicable INFO-CODE when multiple codes
+       might apply.
+
+   3.  Set the SECTION and RR-INDEX fields to accurately identify the RR
+       that caused the failure.
+
+   4.  Populate the EXTRA-TEXT field with useful diagnostic information
+       when practical, while being mindful of information disclosure
+       concerns.
+
+   5.  Continue to set appropriate RCODEs as specified in [RFC2136]; the
+       EUE option provides supplementary information and does not
+       replace RCODEs.
+
+6.2.  Client Implementation
+
+   Clients receiving the EUE option SHOULD:
+
+   1.  Use the SECTION and RR-INDEX fields to identify which specific RR
+       in the UPDATE request caused the failure.
+
+   2.  Use the INFO-CODE and EXTRA-TEXT to provide meaningful error
+       messages to users or take corrective action where possible.
+
+   3.  Not assume that all servers will implement this option; fall back
+       to RCODE-based error handling when the EUE option is not present.
+
+   4.  Log EUE information for debugging purposes.
+
+   5.  Treat EUE information as advisory; the data is unauthenticated
+       unless protected by TSIG or similar mechanisms, and should not
+       override RCODE processing.
+
+6.3.  Multiple EUE Options
+
+   A DNS message MAY contain more than one EUE option.  Receivers MUST
+   be able to accept multiple EUE options in a DNS message.
+
+   A DNS UPDATE may fail for multiple reasons simultaneously.  For
+   example, an UPDATE might attempt to add a CNAME at an owner name
+   where other data exists (INFO-CODE 2) while also specifying an
+   inconsistent TTL (INFO-CODE 7).  In such cases, servers MAY include
+   multiple EUE options in the response, one for each detected failure
+   reason.  Each option will have its own SECTION and RR-INDEX fields
+   identifying the specific RR that caused that particular failure.
+
+   However, server implementations may choose to evaluate UPDATE
+   constraints in a particular order and reject the UPDATE upon
+   detecting the first failure, without checking for additional
+   violations.  Clients MUST NOT assume that a server will return all
+   applicable error codes; the absence of a particular INFO-CODE does
+   not guarantee that the corresponding constraint was satisfied.
+
+   When a server does return multiple EUE options, no ordering or
+   priority is implied.  Clients needing to address multiple issues
+   should attempt to resolve all reported problems before resubmitting
+   the UPDATE.
+
+7.  Security Considerations
+
+   The EUE option provides diagnostic information that is not
+   authenticated unless the DNS message is protected by a mechanism such
+   as TSIG [RFC3007] or DNS over TLS/HTTPS.  Clients MUST NOT rely on
+   EUE information for security decisions.
+
+   The SECTION and RR-INDEX fields reveal which part of an UPDATE
+   request failed.  While this is useful for legitimate debugging, it
+   could potentially be used by an attacker to probe zone configuration
+   by observing which types of updates are rejected.
+
+   The EXTRA-TEXT field may reveal information about zone configuration
+   or server policy.  Server operators should consider what information
+   is appropriate to disclose.  For example, revealing specific policy
+   rules might help attackers craft UPDATE requests that avoid
+   detection.
+
+   Automated systems should be cautious about acting on EUE information
+   without human review, particularly for security- sensitive zones.
+
+   An attacker who can modify DNS responses in transit could insert or
+   modify EUE options to mislead clients about the reason for failure.
+   This is no different from existing RCODE manipulation risks, but
+   operators should be aware that EUE data is subject to the same
+   integrity concerns as other unsigned DNS data.
+
+8.  IANA Considerations
+
+8.1.  New EDNS Option Code
+
+   This document requests IANA to assign a new option code in the "DNS
+   EDNS0 Option Codes (OPT)" registry:
+
+       +=======+=======================+==========+===============+
+       | Value | Name                  | Status   | Reference     |
+       +=======+=======================+==========+===============+
+       | TBD   | Extended UPDATE Error | Standard | This document |
+       +-------+-----------------------+----------+---------------+
+
+                                 Table 15
+
+8.2.  New Registry: Extended UPDATE Error Codes
+
+   This document requests IANA to create a new registry called "Extended
+   UPDATE Error Codes" within the "Domain Name System (DNS) Parameters"
+   registry group.
+
+   The registration policy for this registry is "First Come First
+   Served" for values 0-49151, and "Private Use" for values 49152-65535,
+   following the same model as the "Extended DNS Error Codes" registry
+   [RFC8914].
+
+   The initial contents of this registry are:
+
+      +=============+===============================+===============+
+      | INFO-CODE   | Purpose                       | Reference     |
+      +=============+===============================+===============+
+      | 0           | Other Error                   | This document |
+      +-------------+-------------------------------+---------------+
+      | 1           | CNAME RR Exists at Owner Name | This document |
+      +-------------+-------------------------------+---------------+
+      | 2           | Other Data Exists at CNAME    | This document |
+      |             | Owner Name                    |               |
+      +-------------+-------------------------------+---------------+
+      | 3           | DNAME RR Conflict             | This document |
+      +-------------+-------------------------------+---------------+
+      | 4           | Missing Glue                  | This document |
+      +-------------+-------------------------------+---------------+
+      | 5           | Zone Apex Constraint          | This document |
+      +-------------+-------------------------------+---------------+
+      | 6           | Singleton Type Conflict       | This document |
+      +-------------+-------------------------------+---------------+
+      | 7           | RRset TTL Mismatch            | This document |
+      +-------------+-------------------------------+---------------+
+      | 8           | Delegation Hierarchy          | This document |
+      |             | Violation                     |               |
+      +-------------+-------------------------------+---------------+
+      | 9           | Update Policy Violation       | This document |
+      +-------------+-------------------------------+---------------+
+      | 10          | RRset Size Limit Exceeded     | This document |
+      +-------------+-------------------------------+---------------+
+      | 11-49151    | Unassigned                    |               |
+      +-------------+-------------------------------+---------------+
+      | 49152-65535 | Reserved for Private Use      | This document |
+      +-------------+-------------------------------+---------------+
+
+                                  Table 16
+
+9.  References
+
+9.1.  Normative References
+
+   [RFC1034]  Mockapetris, P., "Domain names - concepts and facilities",
+              STD 13, RFC 1034, DOI 10.17487/RFC1034, November 1987,
+              <https://www.rfc-editor.org/rfc/rfc1034>.
+
+   [RFC1035]  Mockapetris, P., "Domain names - implementation and
+              specification", STD 13, RFC 1035, DOI 10.17487/RFC1035,
+              November 1987, <https://www.rfc-editor.org/rfc/rfc1035>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC2136]  Vixie, P., Ed., Thomson, S., Rekhter, Y., and J. Bound,
+              "Dynamic Updates in the Domain Name System (DNS UPDATE)",
+              RFC 2136, DOI 10.17487/RFC2136, April 1997,
+              <https://www.rfc-editor.org/rfc/rfc2136>.
+
+   [RFC2181]  Elz, R. and R. Bush, "Clarifications to the DNS
+              Specification", RFC 2181, DOI 10.17487/RFC2181, July 1997,
+              <https://www.rfc-editor.org/rfc/rfc2181>.
+
+   [RFC6891]  Damas, J., Graff, M., and P. Vixie, "Extension Mechanisms
+              for DNS (EDNS(0))", STD 75, RFC 6891,
+              DOI 10.17487/RFC6891, April 2013,
+              <https://www.rfc-editor.org/rfc/rfc6891>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC9499]  Hoffman, P. and K. Fujiwara, "DNS Terminology", BCP 219,
+              RFC 9499, DOI 10.17487/RFC9499, March 2024,
+              <https://www.rfc-editor.org/rfc/rfc9499>.
+
+9.2.  Informative References
+
+   [RFC3007]  Wellington, B., "Secure Domain Name System (DNS) Dynamic
+              Update", RFC 3007, DOI 10.17487/RFC3007, November 2000,
+              <https://www.rfc-editor.org/rfc/rfc3007>.
+
+   [RFC4035]  Arends, R., Austein, R., Larson, M., Massey, D., and S.
+              Rose, "Protocol Modifications for the DNS Security
+              Extensions", RFC 4035, DOI 10.17487/RFC4035, March 2005,
+              <https://www.rfc-editor.org/rfc/rfc4035>.
+
+   [RFC6672]  Rose, S. and W. Wijngaards, "DNAME Redirection in the
+              DNS", RFC 6672, DOI 10.17487/RFC6672, June 2012,
+              <https://www.rfc-editor.org/rfc/rfc6672>.
+
+   [RFC8914]  Kumari, W., Hunt, E., Arends, R., Hardaker, W., and D.
+              Lawrence, "Extended DNS Errors", RFC 8914,
+              DOI 10.17487/RFC8914, October 2020,
+              <https://www.rfc-editor.org/rfc/rfc8914>.
+
+Acknowledgments
+
+   The author would like to thank the developers of BIND, Knot DNS,
+   PowerDNS, and other DNS implementations whose error handling informed
+   the error codes proposed in this document.
+
+Examples
+
+CNAME Conflict Example
+
+   A client sends an UPDATE to add an A RR at "www.example.com" where a
+   CNAME RR already exists:
+
+   ;; UPDATE SECTION (index 0):
+   www.example.com.  300  IN  A  192.0.2.1
+
+   The server responds with:
+
+   ;; HEADER: REFUSED
+   ;; OPT PSEUDO-RR:
+   ;;   Extended UPDATE Error Option:
+   ;;     INFO-CODE: 1 (CNAME RR Exists at Owner Name)
+   ;;     SECTION: 1 (Update section)
+   ;;     RR-INDEX: 0
+   ;;     EXTRA-TEXT: "CNAME exists"
+
+Missing Glue Example
+
+   A client sends an UPDATE to add a delegation without glue:
+
+   ;; UPDATE SECTION (index 0):
+   sub.example.com.  86400  IN  NS  ns1.sub.example.com.
+
+   The server responds with:
+
+   ;; HEADER: REFUSED
+   ;; OPT PSEUDO-RR:
+   ;;   Extended UPDATE Error Option:
+   ;;     INFO-CODE: 4 (Missing Glue)
+   ;;     SECTION: 1 (Update section)
+   ;;     RR-INDEX: 0
+   ;;     EXTRA-TEXT: "no A/AAAA for ns1.sub.example.com"
+
+Zone Apex Constraint Example
+
+   A client attempts to delete the SOA RR:
+
+   ;; UPDATE SECTION (index 0):
+   example.com.  0  ANY  SOA
+
+   The server responds with:
+
+   ;; HEADER: REFUSED
+   ;; OPT PSEUDO-RR:
+   ;;   Extended UPDATE Error Option:
+   ;;     INFO-CODE: 5 (Zone Apex Constraint)
+   ;;     SECTION: 1 (Update section)
+   ;;     RR-INDEX: 0
+   ;;     EXTRA-TEXT: "cannot delete SOA"
+
+Update Policy Violation Example
+
+   A client with valid TSIG credentials attempts to add an NS RR at the
+   zone apex on a BIND server configured with allow-update (but not
+   update-policy):
+
+   ;; UPDATE SECTION (index 0):
+   example.com.  86400  IN  NS  ns3.example.com.
+
+   The server responds with:
+
+   ;; HEADER: REFUSED
+   ;; OPT PSEUDO-RR:
+   ;;   Extended UPDATE Error Option:
+   ;;     INFO-CODE: 9 (Update Policy Violation)
+   ;;     SECTION: 1 (Update section)
+   ;;     RR-INDEX: 0
+   ;;     EXTRA-TEXT: "apex NS modification requires update-policy"
+
+Multiple EUE Options Example
+
+   A client sends an UPDATE that violates multiple constraints:
+
+   ;; UPDATE SECTION:
+   ;;   index 0: www.example.com.   300  IN  CNAME  target.example.com.
+   ;;   index 1: www.example.com.  3600  IN  A      192.0.2.1
+
+   This UPDATE attempts to add both a CNAME and an A RR at the same
+   owner name, which violates the CNAME exclusivity rule.  Additionally,
+   the TTL values differ (300 vs 3600).
+
+   A server that checks multiple constraints MAY respond with multiple
+   EUE options:
+
+   ;; HEADER: REFUSED
+   ;; OPT PSEUDO-RR:
+   ;;   Extended UPDATE Error Option:
+   ;;     INFO-CODE: 1 (CNAME RR Exists at Owner Name)
+   ;;     SECTION: 1 (Update section)
+   ;;     RR-INDEX: 0
+   ;;     EXTRA-TEXT: "CNAME conflicts with A"
+   ;;   Extended UPDATE Error Option:
+   ;;     INFO-CODE: 7 (RRset TTL Mismatch)
+   ;;     SECTION: 1 (Update section)
+   ;;     RR-INDEX: 1
+   ;;     EXTRA-TEXT: "TTL 300 != 3600"
+
+   Note that servers are not required to return all applicable error
+   codes.  A server MAY reject the UPDATE upon detecting the first error
+   without checking for additional violations.
+
+Author's Address
+
+   David Groves
+   Nominet
+   Email: david.groves@nominet.uk
